@@ -15,9 +15,33 @@ song_table_drop = "DROP TABLE IF EXISTS song"
 artist_table_drop = "DROP TABLE IF EXISTS artist"
 time_table_drop = "DROP TABLE IF EXISTS time"
 
+# SONG DATASET SAMPLE
+# {
+#   "num_songs": 1, 
+#   "artist_id": "ARJIE2Y1187B994AB7",
+#   "artist_latitude": null,
+#   "artist_longitude": null, 
+#   "artist_location": "", 
+#   "artist_name": "Line Renaud", 
+#   "song_id": "SOUPIRU12A6D4FA1E1", 
+#   "title": "Der Kleine Dompfaff", 
+#   "duration": 152.92036, 
+#   "year": 0}
+
 # CREATE TABLES
 
 staging_events_table_create= ("""
+  CREATE TABLE "staging_events" (
+    "id" double precision DEFAULT nextval('sporting_event_ticket_seq') NOT NULL,
+    "sporting_event_id" double precision NOT NULL,
+    "sport_location_id" double precision NOT NULL,
+    "seat_level" numeric(1,0) NOT NULL,
+    "seat_section" character varying(15) NOT NULL,
+    "seat_row" character varying(10) NOT NULL,
+    "seat" character varying(10) NOT NULL,
+    "ticketholder_id" double precision,
+    "ticket_price" numeric(8,2) NOT NULL
+  )
 """)
 
 staging_songs_table_create = ("""
