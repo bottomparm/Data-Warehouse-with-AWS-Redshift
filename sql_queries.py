@@ -8,10 +8,10 @@ config.read('dwh.cfg')
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
-songplay_table_drop = "DROP TABLE IF EXISTS songplay"
-user_table_drop = "DROP TABLE IF EXISTS user"
-song_table_drop = "DROP TABLE IF EXISTS song"
-artist_table_drop = "DROP TABLE IF EXISTS artist"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays"
+user_table_drop = "DROP TABLE IF EXISTS users"
+song_table_drop = "DROP TABLE IF EXISTS songs"
+artist_table_drop = "DROP TABLE IF EXISTS artists"
 time_table_drop = "DROP TABLE IF EXISTS time"
 
 # SONG DATASET SAMPLE
@@ -30,9 +30,9 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 # CREATE TABLES
 
 staging_events_table_create= ("""
-  CREATE TABLE "staging_events" (
+  CREATE TABLE IF NOT EXISTS staging_events (
     "artist_name" VARCHAR NOT NULL,
-    "auth" VARCHAR NOT NULL,
+    "auth VARCHAR NOT NULL,
     "first_name" VARCHAR NOT NULL,
     "gender" VARCHAR NOT NULL,
     "itemInSession" INT NOT NULL,
@@ -53,7 +53,7 @@ staging_events_table_create= ("""
 """)
 
 staging_songs_table_create = ("""
-  CREATE TABLE "staging_songs" (
+  CREATE TABLE IF NOT EXISTS staging_songs (
     "num_songs" INT NOT NULL,
     "artist_id" VARCHAR NOT NULL,
     "artist_latitude" NUMERIC(10,5),
@@ -68,18 +68,61 @@ staging_songs_table_create = ("""
 """)
 
 songplay_table_create = ("""
+  CREATE TABLE IF NOT EXISTS songplays (
+    songplay_id SERIAL PRIMARY KEY,
+    start_time TIMESTAMP NOT NULL,
+    user_id INT NOT NULL,
+    level VARCHAR NOT NULL,
+    song_id VARCHAR,
+    artist_id VARCHAR,
+    session_id INT NOT NULL,
+    location VARCHAR NOT NULL,
+    user_agent VARCHAR NOT NULL
+  )
 """)
 
 user_table_create = ("""
+  CREATE TABLE IF NOT EXISTS users (
+    user_id INT PRIMARY KEY NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL,
+    gender VARCHAR NOT NULL,
+    level VARCHAR NOT NULL
+  )
 """)
 
 song_table_create = ("""
+  CREATE TABLE IF NOT EXISTS songs (
+    song_id VARCHAR PRIMARY KEY NOT NULL,
+    title VARCHAR NOT NULL,
+    artist_id VARCHAR NOT NULL,
+    year INT NOT NULL,
+    duration NUMERIC(10,5) NOT NULL,
+    UNIQUE (song_id)
+  )
 """)
 
 artist_table_create = ("""
+  CREATE TABLE IF NOT EXISTS artists (
+    artist_id VARCHAR PRIMARY KEY NOT NULL,
+    artist_latitude NUMERIC(10,5),
+    artist_longitude NUMERIC(10,5),
+    artist_location VARCHAR,
+    artist_name VARCHAR NOT NULL,
+    UNIQUE (artist_id)
+  )
 """)
 
 time_table_create = ("""
+  CREATE TABLE IF NOT EXISTS time (
+    start_time TIMESTAMP PRIMARY KEY NOT NULL,
+    hour INT NOT NULL,
+    day INT NOT NULL,
+    week INT NOT NULL,
+    month INT NOT NULL,
+    year INT NOT NULL,
+    weekday INT NOT NULL
+  )
 """)
 
 # STAGING TABLES
