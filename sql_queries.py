@@ -1,6 +1,5 @@
 import configparser
 
-
 # CONFIG
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
@@ -32,19 +31,40 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 
 staging_events_table_create= ("""
   CREATE TABLE "staging_events" (
-    "id" double precision DEFAULT nextval('sporting_event_ticket_seq') NOT NULL,
-    "sporting_event_id" double precision NOT NULL,
-    "sport_location_id" double precision NOT NULL,
-    "seat_level" numeric(1,0) NOT NULL,
-    "seat_section" character varying(15) NOT NULL,
-    "seat_row" character varying(10) NOT NULL,
-    "seat" character varying(10) NOT NULL,
-    "ticketholder_id" double precision,
-    "ticket_price" numeric(8,2) NOT NULL
+    "artist_name" VARCHAR NOT NULL,
+    "auth" VARCHAR NOT NULL,
+    "first_name" VARCHAR NOT NULL,
+    "gender" VARCHAR NOT NULL,
+    "itemInSession" INT NOT NULL,
+    "last_name" VARCHAR NOT NULL,
+    "length" NUMERIC(10,5),
+    "level" VARCHAR NOT NULL,
+    "location" VARCHAR NOT NULL,
+    "method" VARCHAR NOT NULL,
+    "page" VARCHAR NOT NULL,
+    "registration" FLOAT NOT NULL,
+    "sessionId" INT NOT NULL,
+    "song" VARCHAR,
+    "status" INT NOT NULL,
+    "ts" INT NOT NULL,
+    "userAgent" VARCHAR NOT NULL,
+    "userId" INT NOT NULL
   )
 """)
 
 staging_songs_table_create = ("""
+  CREATE TABLE "staging_songs" (
+    "num_songs" INT NOT NULL,
+    "artist_id" VARCHAR NOT NULL,
+    "artist_latitude" NUMERIC(10,5),
+    "artist_longitude" NUMERIC(10,5),
+    "artist_location" VARCHAR,
+    "artist_name" VARCHAR NOT NULL,
+    "song_id" VARCHAR NOT NULL,
+    "title" VARCHAR NOT NULL,
+    "duration" NUMERIC(10,5) NOT NULL,
+    "year" INT NOT NULL
+  )
 """)
 
 songplay_table_create = ("""
