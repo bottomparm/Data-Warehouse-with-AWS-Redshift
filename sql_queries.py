@@ -32,7 +32,7 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 staging_events_table_create= ("""
   CREATE TABLE IF NOT EXISTS staging_events (
     "artist_name" VARCHAR NOT NULL,
-    "auth VARCHAR NOT NULL,
+    "auth" VARCHAR NOT NULL,
     "first_name" VARCHAR NOT NULL,
     "gender" VARCHAR NOT NULL,
     "itemInSession" INT NOT NULL,
@@ -69,7 +69,7 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
   CREATE TABLE IF NOT EXISTS songplays (
-    songplay_id SERIAL PRIMARY KEY,
+    songplay_id INT IDENTITY(0,1) PRIMARY KEY,
     start_time TIMESTAMP NOT NULL,
     user_id INT NOT NULL,
     level VARCHAR NOT NULL,
