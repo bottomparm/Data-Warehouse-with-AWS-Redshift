@@ -7,6 +7,14 @@ config = configparser.ConfigParser()
 config.read("dwh.cfg")
 
 DWH_IAM_ROLE_NAME = config["IAM_ROLE"]["NAME"]
+DWH_DB = config["CLUSTER"]["DB_NAME"]
+DWH_DB_USER = config["CLUSTER"]["DB_USER"]
+DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
+DWH_CLUSTER_IDENTIFIER = config["CLUSTER"]["CLUSTER_IDENTIFIER"]
+DWH_CLUSTER_TYPE = config["CLUSTER"]["CLUSTER_TYPE"]
+DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
+DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
+# DWH_IAM_ROLE_NAME = config["CLUSTER"]["DB_PORT"]
 
 def readS3Data():
     s3 = s3Client()
@@ -45,12 +53,33 @@ def createIamRole():
     roleArn = iam.get_role(RoleName=DWH_IAM_ROLE_NAME)['Role']['Arn']
 
     print(roleArn)
+    return roleArn
 
+def createRedshiftCluster(roleArn):
+  redshift = redshiftClient()
+  try:
+    response = redshift.create_cluster(        
+        #HW
+        ClusterType=DWH_CLUSTER_TYPE,
+        NodeType=DWH_NODE_TYPE,
+        NumberOfNodes=int(DWH_NUM_NODES),
 
+        #Identifiers & Credentials
+        DBName=DWH_DB,
+        ClusterIdentifier=DWH_CLUSTER_IDENTIFIER,
+        MasterUsername=DWH_DB_USER,
+        MasterUserPassword=DWH_DB_PASSWORD,
+        
+        #Roles (for s3 access)
+        IamRoles=[roleArn]
+    )
+  except Exception as e:
+      print(e)
 
 def main():
     # readS3Data()
-    createIamRole()
+    roleArn = createIamRole()
+    createRedshiftCluster(roleArn)
 
 if __name__ == "__main__":
     main()
