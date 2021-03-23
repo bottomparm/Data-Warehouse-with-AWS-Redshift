@@ -89,6 +89,10 @@ def main():
     roleArn = createIamRole()
     createRedshiftCluster(roleArn)
     myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
+    DWH_ENDPOINT = myClusterProps['Endpoint']['Address']
+    DWH_ROLE_ARN = myClusterProps['IamRoles'][0]['IamRoleArn']
+    print("DWH_ENDPOINT :: ", endpoint)
+    print("DWH_ROLE_ARN :: ", roleArn)
     redshiftProps(myClusterProps)
 
 if __name__ == "__main__":
