@@ -1,5 +1,6 @@
 import configparser
 import json
+import pandas as pd
 from create_clients import s3Client, ec2Client, iamClient, redshiftClient
 from botocore.exceptions import ClientError
 
@@ -16,8 +17,11 @@ DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
 DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
 # DWH_IAM_ROLE_NAME = config["CLUSTER"]["DB_PORT"]
 
+s3 = s3Client()
+redshift = redshiftClient()
+iam = iamClient()
+
 def readS3Data():
-    s3 = s3Client()
     sampleDbBucket = s3.Bucket("udacity-dend")
     # for obj in sampleDbBucket.objects.filter(Prefix="ssbgz"):
     #     print(obj)
@@ -26,7 +30,6 @@ def readS3Data():
 
 
 def createIamRole():
-    iam = iamClient()
     try:
         print("1.1 Creating a new IAM Role") 
         dwhRole = iam.create_role(
@@ -56,7 +59,6 @@ def createIamRole():
     return roleArn
 
 def createRedshiftCluster(roleArn):
-  redshift = redshiftClient()
   try:
     response = redshift.create_cluster(        
         #HW
@@ -76,10 +78,18 @@ def createRedshiftCluster(roleArn):
   except Exception as e:
       print(e)
 
+def redshiftProps(props):
+    pd.set_option('display.max_colwidth', None)
+    keysToShow = ["ClusterIdentifier", "NodeType", "ClusterStatus", "MasterUsername", "DBName", "Endpoint", "NumberOfNodes", 'VpcId']
+    x = [(k, v) for k,v in props.items() if k in keysToShow]
+    print(pd.DataFrame(data=x, columns=["Key", "Value"]))
+
 def main():
     # readS3Data()
     roleArn = createIamRole()
     createRedshiftCluster(roleArn)
+    myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
+    redshiftProps(myClusterProps)
 
 if __name__ == "__main__":
     main()
