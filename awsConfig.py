@@ -15,11 +15,12 @@ DWH_CLUSTER_IDENTIFIER = config["CLUSTER"]["CLUSTER_IDENTIFIER"]
 DWH_CLUSTER_TYPE = config["CLUSTER"]["CLUSTER_TYPE"]
 DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
 DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
-# DWH_IAM_ROLE_NAME = config["CLUSTER"]["DB_PORT"]
+DWH_PORT = config["CLUSTER"]["DB_PORT"]
 
 s3 = s3Client()
 redshift = redshiftClient()
 iam = iamClient()
+ec2 = ec2Client()
 
 def readS3Data():
     sampleDbBucket = s3.Bucket("udacity-dend")
@@ -84,6 +85,30 @@ def redshiftProps(props):
     x = [(k, v) for k,v in props.items() if k in keysToShow]
     print(pd.DataFrame(data=x, columns=["Key", "Value"]))
 
+def openTcpPort(myClusterProps):
+  try:
+    vpc = ec2.Vpc(id=myClusterProps['VpcId'])
+    defaultSg = list(vpc.security_groups.all())[0]
+    print(defaultSg)
+    defaultSg.authorize_ingress(
+        GroupName=defaultSg.group_name,
+        CidrIp='0.0.0.0/0',
+        IpProtocol='TCP',
+        FromPort=int(DWH_PORT),
+        ToPort=int(DWH_PORT)
+    )
+  except Exception as e:
+      print(e)
+
+def cleanup():
+    myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
+    #-- Uncomment & run to delete the created resources
+    redshift.delete_cluster( ClusterIdentifier=DWH_CLUSTER_IDENTIFIER,  SkipFinalClusterSnapshot=True)
+    #-- Uncomment & run to delete the created resources
+    iam.detach_role_policy(RoleName=DWH_IAM_ROLE_NAME, PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess")
+    iam.delete_role(RoleName=DWH_IAM_ROLE_NAME)
+    redshiftProps(myClusterProps)
+
 def main():
     # readS3Data()
     roleArn = createIamRole()
@@ -91,9 +116,12 @@ def main():
     myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
     DWH_ENDPOINT = myClusterProps['Endpoint']['Address']
     DWH_ROLE_ARN = myClusterProps['IamRoles'][0]['IamRoleArn']
-    print("DWH_ENDPOINT :: ", endpoint)
-    print("DWH_ROLE_ARN :: ", roleArn)
+    print("DWH_ENDPOINT :: ", DWH_ENDPOINT)
+    print("DWH_ROLE_ARN :: ", DWH_ROLE_ARN)
     redshiftProps(myClusterProps)
+    openTcpPort(myClusterProps)
+    
+    return myClusterProps['Endpoint']
 
 if __name__ == "__main__":
     main()
