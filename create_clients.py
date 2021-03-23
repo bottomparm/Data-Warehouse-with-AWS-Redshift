@@ -16,3 +16,33 @@ def s3Client():
         aws_secret_access_key=SECRET,
     )
     return s3
+
+
+def ec2Client():
+    ec2 = boto3.resource(
+        "ec2",
+        region_name="us-east-1",
+        aws_access_key_id=KEY,
+        aws_secret_access_key=SECRET,
+    )
+    return ec2
+
+
+def iamClient():
+    iam = boto3.client(
+        "iam",
+        aws_access_key_id=KEY,
+        aws_secret_access_key=SECRET,
+        region_name="us-east-1",
+    )
+    return iam
+
+
+def redshiftClient():
+    redshift = boto3.client(
+        "redshift",
+        region_name="us-east-1",
+        aws_access_key_id=KEY,
+        aws_secret_access_key=SECRET,
+    )
+    return redshift
