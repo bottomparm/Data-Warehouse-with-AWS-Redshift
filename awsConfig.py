@@ -101,12 +101,14 @@ def openTcpPort(myClusterProps):
       print(e)
 
 def cleanup():
+    # grab redshift props from current cluster if running
     myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
-    #-- Uncomment & run to delete the created resources
+    # delete cluster
     redshift.delete_cluster( ClusterIdentifier=DWH_CLUSTER_IDENTIFIER,  SkipFinalClusterSnapshot=True)
-    #-- Uncomment & run to delete the created resources
+    # delete IAM role
     iam.detach_role_policy(RoleName=DWH_IAM_ROLE_NAME, PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess")
     iam.delete_role(RoleName=DWH_IAM_ROLE_NAME)
+    # print cluster status to console
     redshiftProps(myClusterProps)
 
 def main():
@@ -120,6 +122,9 @@ def main():
     print("DWH_ROLE_ARN :: ", DWH_ROLE_ARN)
     redshiftProps(myClusterProps)
     openTcpPort(myClusterProps)
+
+    # Uncomment to run cleanup func and delete AWS redshift cluster and iam role
+    # cleanup()
     
     return myClusterProps['Endpoint']
 
