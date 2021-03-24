@@ -40,6 +40,11 @@ LOG_JSONPATH='s3://udacity-dend/log_json_path.json'
 SONG_DATA='s3://udacity-dend/song_data'
 ```
 
-2. Run the create_tables.py file. NOTE: You'll want to do this once, and wait 5-10 minutes for your Redshift Cluster to be created before running again.
+2. Run the create_tables.py file.
 
-3. 
+NOTE: You'll want to do this once, and wait 5-10 minutes for your Redshift Cluster to be created before running again.
+
+3. Once you can run create_tables.py and the only errors you get are errors explaining you've already created certain resources, you will have an AWS Redshift Cluster with a DB and table schema.
+
+4. Logging into your AWS account, you can use the Query Editor in the Redshift console to check your DB.
+

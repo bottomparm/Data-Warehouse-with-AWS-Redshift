@@ -29,11 +29,6 @@ def create_tables(cur, conn):
 
 
 def main():
-    # run the awsConfig main func to create AWS resources and receive cluster endpoint
-    # NOTE: you will have to run this multiple times in order to give time for the cluster to create
-    endpoint = awsConfig.main()
-    host = endpoint['Address']
-    port = endpoint['Port']
     # connect to postgres db
     conn = psycopg2.connect(
         "host={} dbname={} user={} password={} port={}".format(

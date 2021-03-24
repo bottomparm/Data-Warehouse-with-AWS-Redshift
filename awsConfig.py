@@ -111,6 +111,18 @@ def cleanup():
     # print cluster status to console
     redshiftProps(myClusterProps)
 
+def updateConfig(endpoint):
+    host = endpoint['Address']
+    port = endpoint['Port']
+    config['ENDPOINT']={
+    'HOST': host,
+    'PORT': port
+    }
+    # writing to configuration file
+    with open('dwh.cfg', 'w') as configfile:
+        config.write(configfile)
+
+
 def main():
     # readS3Data()
     roleArn = createIamRole()
@@ -123,10 +135,12 @@ def main():
     redshiftProps(myClusterProps)
     openTcpPort(myClusterProps)
 
+    # if redshift cluster is available and config has not been updated, update config
+    if myClusterProps['Endpoint'] and not config.has_section('ENDPOINT'):
+      updateConfig(myClusterProps['Endpoint'])
+
     # Uncomment to run cleanup func and delete AWS redshift cluster and iam role
     # cleanup()
-    
-    return myClusterProps['Endpoint']
 
 if __name__ == "__main__":
     main()
