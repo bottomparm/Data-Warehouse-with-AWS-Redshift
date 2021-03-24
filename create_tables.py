@@ -1,7 +1,6 @@
 import configparser
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
-import awsConfig
 
 config = configparser.ConfigParser()
 config.read("dwh.cfg")
@@ -9,6 +8,8 @@ config.read("dwh.cfg")
 DWH_DB = config["CLUSTER"]["DB_NAME"]
 DWH_DB_USER = config["CLUSTER"]["DB_USER"]
 DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
+DWH_HOST = config["ENDPOINT"]["host"]
+DWH_PORT = config["ENDPOINT"]["port"]
 
 def drop_tables(cur, conn):
     try:
@@ -32,7 +33,7 @@ def main():
     # connect to postgres db
     conn = psycopg2.connect(
         "host={} dbname={} user={} password={} port={}".format(
-            host, DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, port
+            DWH_HOST, DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT
         )
     )
     print(conn)

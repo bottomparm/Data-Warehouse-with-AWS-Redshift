@@ -4,6 +4,11 @@ import configparser
 config = configparser.ConfigParser()
 config.read("dwh.cfg")
 
+DWH_IAM_ROLE_ARN = config["IAM_ROLE"]["rolearn"]
+S3_LOG_DATA = config["S3"]["log_data"]
+S3_SONG_DATA = config["S3"]["song_data"]
+S3_LOG_JSON_PATH = config["S3"]["log_jsonpath"]
+
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
@@ -42,11 +47,11 @@ staging_events_table_create = """
     "location" VARCHAR NOT NULL,
     "method" VARCHAR NOT NULL,
     "page" VARCHAR NOT NULL,
-    "registration" FLOAT NOT NULL,
+    "registration" BIGINT NOT NULL,
     "sessionId" INT NOT NULL,
     "song" VARCHAR,
     "status" INT NOT NULL,
-    "ts" INT NOT NULL,
+    "ts" BIGINT NOT NULL,
     "userAgent" VARCHAR NOT NULL,
     "userId" INT NOT NULL
   )
@@ -128,14 +133,24 @@ time_table_create = """
 # STAGING TABLES
 
 staging_events_copy = (
-    """
 """
-).format()
+    copy staging_events from {}
+    credentials 'aws_iam_role={}'
+    region 'us-west-2'
+    delimiter ','
+    ;
+"""
+).format(S3_LOG_DATA, DWH_IAM_ROLE_ARN)
 
 staging_songs_copy = (
-    """
 """
-).format()
+    copy staging_songs from {}
+    credentials 'aws_iam_role={}'
+    region 'us-west-2'
+    delimiter ','
+    ;
+"""
+).format(S3_SONG_DATA, DWH_IAM_ROLE_ARN)
 
 # FINAL TABLES
 

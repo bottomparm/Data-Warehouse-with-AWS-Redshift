@@ -24,10 +24,10 @@ ec2 = ec2Client()
 
 def readS3Data():
     sampleDbBucket = s3.Bucket("udacity-dend")
-    # for obj in sampleDbBucket.objects.filter(Prefix="ssbgz"):
-    #     print(obj)
-    for obj in sampleDbBucket.objects.all():
+    for obj in sampleDbBucket.objects.filter(Prefix="log_data"):
         print(obj)
+    # for obj in sampleDbBucket.objects.all():
+    #     print(obj)
 
 
 def createIamRole():
@@ -111,12 +111,17 @@ def cleanup():
     # print cluster status to console
     redshiftProps(myClusterProps)
 
-def updateConfig(endpoint):
+def updateConfig(endpoint, roleArn):
     host = endpoint['Address']
     port = endpoint['Port']
-    config['ENDPOINT']={
-    'HOST': host,
-    'PORT': port
+    
+    config['ENDPOINT'] = {
+    'host': host,
+    'port': port
+    }
+    config['IAM_ROLE'] = {
+      'name': DWH_IAM_ROLE_NAME,
+      'roleArn': roleArn
     }
     # writing to configuration file
     with open('dwh.cfg', 'w') as configfile:
@@ -124,7 +129,7 @@ def updateConfig(endpoint):
 
 
 def main():
-    # readS3Data()
+    readS3Data()
     roleArn = createIamRole()
     createRedshiftCluster(roleArn)
     myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
@@ -137,7 +142,7 @@ def main():
 
     # if redshift cluster is available and config has not been updated, update config
     if myClusterProps['Endpoint'] and not config.has_section('ENDPOINT'):
-      updateConfig(myClusterProps['Endpoint'])
+      updateConfig(myClusterProps['Endpoint'], DWH_ROLE_ARN)
 
     # Uncomment to run cleanup func and delete AWS redshift cluster and iam role
     # cleanup()
