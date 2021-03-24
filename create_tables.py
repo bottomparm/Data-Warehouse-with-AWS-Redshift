@@ -6,15 +6,9 @@ import awsConfig
 config = configparser.ConfigParser()
 config.read("dwh.cfg")
 
-DWH_IAM_ROLE_NAME = config["IAM_ROLE"]["NAME"]
 DWH_DB = config["CLUSTER"]["DB_NAME"]
 DWH_DB_USER = config["CLUSTER"]["DB_USER"]
 DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
-DWH_CLUSTER_IDENTIFIER = config["CLUSTER"]["CLUSTER_IDENTIFIER"]
-DWH_CLUSTER_TYPE = config["CLUSTER"]["CLUSTER_TYPE"]
-DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
-DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
-DWH_PORT = config["CLUSTER"]["DB_PORT"]
 
 def drop_tables(cur, conn):
     try:
@@ -35,10 +29,12 @@ def create_tables(cur, conn):
 
 
 def main():
+    # run the awsConfig main func to create AWS resources and receive cluster endpoint
+    # NOTE: you will have to run this multiple times in order to give time for the cluster to create
     endpoint = awsConfig.main()
     host = endpoint['Address']
     port = endpoint['Port']
-
+    # connect to postgres db
     conn = psycopg2.connect(
         "host={} dbname={} user={} password={} port={}".format(
             host, DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, port
