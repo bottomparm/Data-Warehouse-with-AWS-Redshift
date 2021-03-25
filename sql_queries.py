@@ -21,6 +21,7 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 
 # CREATE TABLES
 
+# having issues with the ts BIGINT type and getting it into timestamp form
 staging_events_table_create = """
   CREATE TABLE IF NOT EXISTS staging_events (
     "artist" TEXT,
@@ -73,6 +74,7 @@ songplay_table_create = """
   )
 """
 
+# had to remove PRIMARY KEY from user_id to get rid of "cannot insert NULL value for user_id" error
 user_table_create = """
   CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER,
