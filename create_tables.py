@@ -13,6 +13,7 @@ DWH_PORT = config["ENDPOINT"]["port"]
 
 
 def drop_tables(cur, conn):
+    """Drop tables if they exist and commit the changes"""
     try:
         for query in drop_table_queries:
             cur.execute(query)
@@ -22,6 +23,7 @@ def drop_tables(cur, conn):
 
 
 def create_tables(cur, conn):
+    """Create tables if they do not exist and commit the changes"""
     try:
         for query in create_table_queries:
             cur.execute(query)
@@ -31,13 +33,12 @@ def create_tables(cur, conn):
 
 
 def main():
-    # connect to postgres db
+    """Connect to postgres"""
     conn = psycopg2.connect(
         "host={} dbname={} user={} password={} port={}".format(
             DWH_HOST, DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT
         )
     )
-    print(conn)
     cur = conn.cursor()
 
     drop_tables(cur, conn)

@@ -17,6 +17,7 @@ DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
 DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
 DWH_PORT = config["CLUSTER"]["DB_PORT"]
 
+"""Establish clients for AWS services"""
 s3 = s3Client()
 redshift = redshiftClient()
 iam = iamClient()
@@ -24,14 +25,16 @@ ec2 = ec2Client()
 
 
 def readS3Data():
+    """Print data from S3 to console"""
     sampleDbBucket = s3.Bucket("udacity-dend")
-    for obj in sampleDbBucket.objects.filter(Prefix="log_data"):
-        print(obj)
+    # for obj in sampleDbBucket.objects.filter(Prefix="log_data"):
+    #     print(obj)
     # for obj in sampleDbBucket.objects.all():
     #     print(obj)
 
 
 def createIamRole():
+    """Create an IAM Role with S3ReadOnlyAccess permissions"""
     try:
         print("1.1 Creating a new IAM Role")
         dwhRole = iam.create_role(
@@ -69,9 +72,10 @@ def createIamRole():
 
 
 def createRedshiftCluster(roleArn):
+    """Create Redshift Cluster with params from dwh.cfg"""
     try:
         response = redshift.create_cluster(
-            # HW
+            # Cluster info
             ClusterType=DWH_CLUSTER_TYPE,
             NodeType=DWH_NODE_TYPE,
             NumberOfNodes=int(DWH_NUM_NODES),
@@ -88,6 +92,7 @@ def createRedshiftCluster(roleArn):
 
 
 def redshiftProps(props):
+    """Create a pandas dataframe of the cluster info and print it to console"""
     pd.set_option("display.max_colwidth", None)
     keysToShow = [
         "ClusterIdentifier",
@@ -104,6 +109,7 @@ def redshiftProps(props):
 
 
 def openTcpPort(myClusterProps):
+    """Open a TCP port to allow connections to the cluster"""
     try:
         vpc = ec2.Vpc(id=myClusterProps["VpcId"])
         defaultSg = list(vpc.security_groups.all())[0]
@@ -120,25 +126,26 @@ def openTcpPort(myClusterProps):
 
 
 def cleanup():
-    # grab redshift props from current cluster if running
+    """grab redshift props from current cluster if running"""
     myClusterProps = redshift.describe_clusters(
         ClusterIdentifier=DWH_CLUSTER_IDENTIFIER
     )["Clusters"][0]
-    # delete cluster
+    """delete cluster"""
     redshift.delete_cluster(
         ClusterIdentifier=DWH_CLUSTER_IDENTIFIER, SkipFinalClusterSnapshot=True
     )
-    # delete IAM role
+    """delete IAM role"""
     iam.detach_role_policy(
         RoleName=DWH_IAM_ROLE_NAME,
         PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
     )
     iam.delete_role(RoleName=DWH_IAM_ROLE_NAME)
-    # print cluster status to console
+    """print cluster status to console"""
     redshiftProps(myClusterProps)
 
 
 def updateConfig(endpoint, roleArn):
+    """Update the dwh.cfg file with host and port values"""
     host = endpoint["Address"]
     port = endpoint["Port"]
 
@@ -163,11 +170,11 @@ def main():
     redshiftProps(myClusterProps)
     openTcpPort(myClusterProps)
 
-    # if redshift cluster is available and config has not been updated, update config
+    """if redshift cluster is available and config has not been updated, update config"""
     if myClusterProps["Endpoint"] and not config.has_section("ENDPOINT"):
         updateConfig(myClusterProps["Endpoint"], DWH_ROLE_ARN)
 
-    # Uncomment to run cleanup func and delete AWS redshift cluster and iam role
+    """Uncomment to run cleanup func and delete AWS redshift cluster and iam role"""
     # cleanup()
 
 

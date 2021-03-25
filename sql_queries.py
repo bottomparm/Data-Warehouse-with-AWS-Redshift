@@ -19,29 +19,16 @@ song_table_drop = "DROP TABLE IF EXISTS songs"
 artist_table_drop = "DROP TABLE IF EXISTS artists"
 time_table_drop = "DROP TABLE IF EXISTS time"
 
-# SONG DATASET SAMPLE
-# {
-#   "num_songs": 1,
-#   "artist_id": "ARJIE2Y1187B994AB7",
-#   "artist_latitude": null,
-#   "artist_longitude": null,
-#   "artist_location": "",
-#   "artist_name": "Line Renaud",
-#   "song_id": "SOUPIRU12A6D4FA1E1",
-#   "title": "Der Kleine Dompfaff",
-#   "duration": 152.92036,
-#   "year": 0}
-
 # CREATE TABLES
 
 staging_events_table_create = """
   CREATE TABLE IF NOT EXISTS staging_events (
-    "artist_name" TEXT,
+    "artist" TEXT,
     "auth" TEXT,
-    "first_name" TEXT,
+    "firstName" TEXT,
     "gender" CHAR,
     "itemInSession" INTEGER,
-    "last_name" TEXT,
+    "lastName" TEXT,
     "length" DOUBLE PRECISION,
     "level" TEXT,
     "location" TEXT,
@@ -76,11 +63,11 @@ songplay_table_create = """
   CREATE TABLE IF NOT EXISTS songplays (
     songplay_id INTEGER IDENTITY(0,1) PRIMARY KEY,
     start_time TIMESTAMP NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER,
     level TEXT,
-    song_id TEXT NOT NULL,
-    artist_id TEXT NOT NULL,
-    session_id INTEGER NOT NULL,
+    song_id TEXT,
+    artist_id TEXT,
+    session_id INTEGER,
     location TEXT,
     user_agent TEXT
   )
@@ -88,9 +75,9 @@ songplay_table_create = """
 
 user_table_create = """
   CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
+    user_id INTEGER,
+    first_name TEXT,
+    last_name TEXT,
     gender TEXT,
     level TEXT
   )
@@ -134,57 +121,57 @@ time_table_create = """
 
 staging_events_copy = (
     """
-    copy staging_events from {}
-    credentials 'aws_iam_role={}'
-    region 'us-west-2'
-    format as json {}
+    COPY staging_events FROM {}
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
+    FORMAT AS json {}
     ;
 """
 ).format(S3_LOG_DATA, DWH_IAM_ROLE_ARN, S3_LOG_JSON_PATH)
 
 staging_songs_copy = (
     """
-    copy staging_songs from {}
-    credentials 'aws_iam_role={}'
-    region 'us-west-2'
+    COPY staging_songs FROM {}
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
     JSON 'auto'
     ;
 """
 ).format(S3_SONG_DATA, DWH_IAM_ROLE_ARN)
 
-# FINAL TABLES
+# FACT TABLE
 
 songplay_table_insert = """
-    INSERT INTO songplays (user_id, level, session_id, location, user_agent, song_id, artist_id, start_time)
-    SELECT userid, level, sessionid, location, useragent, song_id, artist_id, CAST(ts as date)
-    FROM staging_events
-    JOIN staging_songs ON (staging_events.song = staging_songs.title AND staging_events.artist = staging_songs.artist_name);
-  """
+  INSERT INTO songplays (user_id, level, session_id, location, user_agent, song_id, artist_id, start_time)
+  SELECT userid, level, sessionid, location, useragent, song_id, artist_id, '1970-01-01 00:00:00 GMT'::timestamp + ((ts / 1000)::text)::interval
+  FROM staging_events
+  JOIN staging_songs ON (staging_events.song = staging_songs.title AND staging_events.artist = staging_songs.artist_name)
+"""
+
+# DIMENSION TABLES
 
 user_table_insert = """
   INSERT INTO users (user_id, first_name, last_name, gender, level)
   SELECT userid, firstname, lastname, gender, level
   FROM staging_events
-  ON CONFLICT (user_id) DO UPDATE SET level = EXCLUDED.level;
-  """
+"""
 
 song_table_insert = """
   INSERT INTO songs (song_id, title, year, duration, artist_id)
   SELECT song_id, title, year, CAST(duration as float), artist_id 
-  FROM staging_songs;
-  """
+  FROM staging_songs
+"""
 
 artist_table_insert = """
-INSERT INTO artists (artist_id, name, location, latitude, longitude)
-SELECT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-FROM staging_songs
-ON CONFLICT (artist_id) DO NOTHING;
+  INSERT INTO artists (artist_id, artist_name, artist_location, artist_latitude, artist_longitude)
+  SELECT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
+  FROM staging_songs
 """
 
 time_table_insert = """
-INSERT INTO time (start_time, hour, day, week, month, year, weekday)
-SELECT CAST(ts as date), EXTRACT(hour from ts), EXTRACT(day from ts), EXTRACT(week from ts), EXTRACT(month from ts), EXTRACT(year from ts), EXTRACT(weekday from ts)
-FROM staging_events
+  INSERT INTO time (start_time, hour, day, week, month, year, weekday)
+  SELECT '1970-01-01 00:00:00 GMT'::timestamp + ((ts / 1000)::text)::interval, EXTRACT(hour from ts), EXTRACT(day from ts), EXTRACT(week from ts), EXTRACT(month from ts), EXTRACT(year from ts), EXTRACT(weekday from ts)
+  FROM staging_events
 """
 
 # QUERY LISTS

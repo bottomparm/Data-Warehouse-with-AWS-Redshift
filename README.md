@@ -1,5 +1,21 @@
 # README
 
+## Overview
+
+Introduction
+A music streaming startup, Sparkify, has grown their user base and song database and want to move their processes and data onto the cloud. Their data resides in S3, in a directory of JSON logs on user activity on the app, as well as a directory with JSON metadata on the songs in their app.
+
+This project constructs an ETL pipeline that extracts data from S3, stages it in Redshift, and transforms data into a set of dimensional tables for an analytics team to continue finding insights in what songs their users are listening to.
+
+Project Description
+
+1. Build an ETL pipeline for a database hosted on Redshift.
+2. Load data from S3 to staging tables on Redshift.
+3. Execute SQL statements that create the analytics tables from these staging tables.
+
+## Schema Design
+
+For this project I elected to go with a Star Schema database design. I did this to provide simplicitity and speed for SQL queries.
 ## Installation
 
 Use a package manager (pip) to install the following packages:
