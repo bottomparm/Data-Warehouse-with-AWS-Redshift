@@ -1,5 +1,11 @@
 # README
 
+## Questions for Reviewer
+
+1. I am having trouble with the `ts` column in the log_data set. I am trying to cast it into a timestamp and have tried several methods but redshift doesn't seem to like any of them. Do I start with it in `BIGINT` form?
+
+2. I had to remove the `PRIMARY KEY` designation from `user_id` in the `users` table because I kept receiving an error saying that I could not insert a null value for `user_id`. I'm assuming it was referring to the `user_id` in the `users` table.
+
 ## Overview
 
 Introduction
