@@ -11,6 +11,7 @@ DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
 DWH_HOST = config["ENDPOINT"]["host"]
 DWH_PORT = config["ENDPOINT"]["port"]
 
+
 def load_staging_tables(cur, conn):
     for query in copy_table_queries:
         cur.execute(query)
@@ -24,9 +25,6 @@ def insert_tables(cur, conn):
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read("dwh.cfg")
-
     conn = psycopg2.connect(
         "host={} dbname={} user={} password={} port={}".format(
             DWH_HOST, DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT

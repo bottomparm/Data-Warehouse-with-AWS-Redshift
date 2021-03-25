@@ -11,6 +11,7 @@ DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
 DWH_HOST = config["ENDPOINT"]["host"]
 DWH_PORT = config["ENDPOINT"]["port"]
 
+
 def drop_tables(cur, conn):
     try:
         for query in drop_table_queries:
