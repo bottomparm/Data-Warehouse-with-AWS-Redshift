@@ -15,7 +15,7 @@ DWH_CLUSTER_IDENTIFIER = config["CLUSTER"]["CLUSTER_IDENTIFIER"]
 DWH_CLUSTER_TYPE = config["CLUSTER"]["CLUSTER_TYPE"]
 DWH_NUM_NODES = config["CLUSTER"]["NUM_NODES"]
 DWH_NODE_TYPE = config["CLUSTER"]["NODE_TYPE"]
-DWH_PORT = config["CLUSTER"]["DB_PORT"]
+DWH_PORT = config["ENDPOINT"]["port"]
 
 """Establish clients for AWS services"""
 s3 = s3Client()

@@ -145,7 +145,7 @@ staging_songs_copy = (
 
 songplay_table_insert = """
   INSERT INTO songplays (user_id, level, session_id, location, user_agent, song_id, artist_id, start_time)
-  SELECT userid, level, sessionid, location, useragent, song_id, artist_id, '1970-01-01 00:00:00 GMT'::timestamp + ((ts / 1000)::text)::interval
+  SELECT userid, level, sessionid, location, useragent, song_id, artist_id, DATEADD(ms, ts, '1970-01-01 00:00:00')
   FROM staging_events
   JOIN staging_songs ON (staging_events.song = staging_songs.title AND staging_events.artist = staging_songs.artist_name)
 """
@@ -172,7 +172,14 @@ artist_table_insert = """
 
 time_table_insert = """
   INSERT INTO time (start_time, hour, day, week, month, year, weekday)
-  SELECT '1970-01-01 00:00:00 GMT'::timestamp + ((ts / 1000)::text)::interval, EXTRACT(hour from ts), EXTRACT(day from ts), EXTRACT(week from ts), EXTRACT(month from ts), EXTRACT(year from ts), EXTRACT(weekday from ts)
+  SELECT 
+    DATEADD(ms, ts, '1970-01-01 00:00:00'),
+    EXTRACT(hour from DATEADD(ms, ts, '1970-01-01 00:00:00')),
+    EXTRACT(day from DATEADD(ms, ts, '1970-01-01 00:00:00')),
+    EXTRACT(week from DATEADD(ms, ts, '1970-01-01 00:00:00')),
+    EXTRACT(month from DATEADD(ms, ts, '1970-01-01 00:00:00')),
+    EXTRACT(year from DATEADD(ms, ts, '1970-01-01 00:00:00')),
+    EXTRACT(dayofweek from DATEADD(ms, ts, '1970-01-01 00:00:00'))
   FROM staging_events
 """
 
