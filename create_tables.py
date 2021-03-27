@@ -1,6 +1,6 @@
 import configparser
 import psycopg2
-from sql_queries import create_table_queries, drop_table_queries
+from sql_queries import create_table_queries, drop_table_queries, create_schema_queries, drop_schema_queries
 
 config = configparser.ConfigParser()
 config.read("dwh.cfg")
@@ -13,27 +13,27 @@ DWH_PORT = config["ENDPOINT"]["port"]
 
 def create_schemas(cur, conn):
     '''
-    Function to create schemas. This function uses the variable 'create_schemas_queries' defined in the 'sql_queries.py' file.
+    Function to create schemas. This function uses the variable 'create_schema_queries' defined in the 'sql_queries.py' file.
     Parameters:
         - curr: Cursor for a database connection
         - conn: Database connection
     Outputs:
         None
     '''
-    for query in create_schemas_queries:
+    for query in create_schema_queries:
         cur.execute(query)
         conn.commit()        
 
 def drop_schemas(cur, conn):
     '''
-    Function to drop schemas. This function uses the variable 'drop_schemas_queries' defined in the 'sql_queries.py' file.
+    Function to drop schemas. This function uses the variable 'drop_schema_queries' defined in the 'sql_queries.py' file.
     Parameters:
         - curr: Cursor for a database connection
         - conn: Database connection
     Outputs:
         None
     '''
-    for query in drop_schemas_queries:
+    for query in drop_schema_queries:
         cur.execute(query)
         conn.commit()
 

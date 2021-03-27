@@ -197,6 +197,16 @@ time_table_insert = """
 
 # QUERY LISTS
 
+create_schema_queries = [
+    fact_schema,
+    dimension_schema,
+    staging_schema
+]
+drop_schema_queries = [
+    fact_schema_drop,
+    dimension_schema_drop,
+    staging_schema_drop
+]
 create_table_queries = [
     staging_events_table_create,
     staging_songs_table_create,
