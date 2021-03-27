@@ -19,6 +19,18 @@ song_table_drop = "DROP TABLE IF EXISTS songs"
 artist_table_drop = "DROP TABLE IF EXISTS artists"
 time_table_drop = "DROP TABLE IF EXISTS time"
 
+# SCHEMA CREATE/DELETE
+
+# CREATE SCHEMAS
+fact_schema= ("CREATE SCHEMA IF NOT EXISTS fact_tables")
+dimension_schema= ("CREATE SCHEMA IF NOT EXISTS dimension_tables")
+staging_schema= ("CREATE SCHEMA IF NOT EXISTS staging_tables")
+
+# DROP SCHEMAS
+fact_schema_drop= ("DROP SCHEMA IF EXISTS fact_tables CASCADE")
+dimension_schema_drop= ("DROP SCHEMA IF EXISTS dimension_tables CASCADE")
+staging_schema_drop= ("DROP SCHEMA IF EXISTS staging_tables CASCADE")
+
 # CREATE TABLES
 
 # having issues with the ts BIGINT type and getting it into timestamp form

@@ -11,6 +11,31 @@ DWH_DB_PASSWORD = config["CLUSTER"]["DB_PASSWORD"]
 DWH_HOST = config["ENDPOINT"]["host"]
 DWH_PORT = config["ENDPOINT"]["port"]
 
+def create_schemas(cur, conn):
+    '''
+    Function to create schemas. This function uses the variable 'create_schemas_queries' defined in the 'sql_queries.py' file.
+    Parameters:
+        - curr: Cursor for a database connection
+        - conn: Database connection
+    Outputs:
+        None
+    '''
+    for query in create_schemas_queries:
+        cur.execute(query)
+        conn.commit()        
+
+def drop_schemas(cur, conn):
+    '''
+    Function to drop schemas. This function uses the variable 'drop_schemas_queries' defined in the 'sql_queries.py' file.
+    Parameters:
+        - curr: Cursor for a database connection
+        - conn: Database connection
+    Outputs:
+        None
+    '''
+    for query in drop_schemas_queries:
+        cur.execute(query)
+        conn.commit()
 
 def drop_tables(cur, conn):
     """Drop tables if they exist and commit the changes"""
@@ -41,6 +66,8 @@ def main():
     )
     cur = conn.cursor()
 
+    create_schemas(cur, conn)
+    drop_schemas(cur, conn)
     drop_tables(cur, conn)
     create_tables(cur, conn)
 
